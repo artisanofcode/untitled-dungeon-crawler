@@ -1,0 +1,14 @@
+# EditorConfig https://editorconfig.org
+
+root = true
+
+# unix-style newlines with a newline ending every file, with no trailing whitespace
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# two space indentation for lua and json files
+[*.{lua,json}]
+indent_style = space
+indent_size = 2
