@@ -1,9 +1,27 @@
 local vector2 = require("crawler.engine.vector2")
 
+--- Tile Set.
+---
+--- @class tileset
+--- @field texture love.Texture
+--- @field tilesize vector2
+--- @field margin vector2
+--- @field spacing vector2
+--- @field imagesize vector2
+--- @field columns integer
+--- @field quads love.Quad[]
 local M = {}
 
 M.__index = M
 
+--- Tile Set Factory.
+---
+--- @param texture love.Texture texture atlas containing tiles
+--- @param tilesize? vector2 size of the tiles
+--- @param margin? vector2 distance of tiles from top left of image
+--- @param spacing? vector2 distance between tiles
+---
+--- @return tileset
 function M.new(texture, tilesize, margin, spacing)
   local quads = {}
   local imagewidth, imageheight = texture:getDimensions()
@@ -48,10 +66,21 @@ function M.new(texture, tilesize, margin, spacing)
   return setmetatable(self, M)
 end
 
+--- Check type is Tile Set.
+---
+--- @param value any value to check
+---
+--- @return boolean
 function M.istileset(value)
   return getmetatable(value) == M
 end
 
+--- Draw Tile.
+---
+--- @param self tileset tileset to draw
+--- @param index integer tile index
+--- @param x number pixel X coordinate
+--- @param y number pixel Y coordinate
 function M.draw(self, index, x, y)
   love.graphics.draw(self.texture, self.quads[index], x, y)
 end

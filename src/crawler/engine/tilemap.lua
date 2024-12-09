@@ -1,7 +1,21 @@
+--- Tile Map
+---
+--- @class tilemap
+--- @field data number[]
+--- @field mapsize vector2
+--- @field tilesize vector2
+--- @field tileset tileset
 local M = {}
 
 M.__index = M
 
+--- Tile Map Factory
+---
+--- @param data integer[] map data
+--- @param mapsize vector2 maps total dimensions
+--- @param tileset tileset tileset to use when rendering map
+---
+--- @return tilemap
 function M.new(data, mapsize, tileset)
   local self = {
     data = data,
@@ -13,7 +27,12 @@ function M.new(data, mapsize, tileset)
   return setmetatable(self, M)
 end
 
-function M.ismap(value)
+---Check Type is Tile Map
+---
+---@param value any
+--
+---@return boolean
+function M.istilemap(value)
   return getmetatable(value) == M
 end
 

@@ -2,7 +2,7 @@ local M = {}
 
 local vector2 = require("crawler.engine.vector2")
 local tileset = require("crawler.engine.tileset")
-local map = require("crawler.engine.map")
+local tilemap = require("crawler.engine.tilemap")
 
 local objects = {}
 
@@ -89,7 +89,7 @@ function M.load()
   }
   table.insert(objects, 1, slime2)
 
-  local gamemap = map.new(
+  local map = tilemap.new(
     {
       0, 0, 2, 2, 0, 0, 2, 2, 2, 0, 0, 0, 2, 2, 0, 0,
       0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
@@ -113,7 +113,7 @@ function M.load()
       vector2.new(32, 32)
     )
   )
-  table.insert(objects, 1, gamemap)
+  table.insert(objects, 1, map)
 end
 
 function M.update(dt)
