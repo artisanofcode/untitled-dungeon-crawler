@@ -11,7 +11,7 @@ M.__index = M
 
 --- Tile Map Factory
 ---
---- @param data integer[] map data
+--- @param data integer[][] map data
 --- @param mapsize vector2 maps total dimensions
 --- @param tileset tileset tileset to use when rendering map
 ---
@@ -37,16 +37,27 @@ function M.istilemap(value)
 end
 
 function M.draw(self)
-  local width = self.mapsize.x
+  local width, height = self.mapsize:unpack()
   local tilewidth, tileheight = self.tilesize:unpack()
   local tileset = self.tileset
 
-  for i, tileindex in ipairs(self.data) do
-    if tileindex > 0 then
+  local default = 2
+
+  for x = 1, width do
+    for y = 1, height do
+      local tl, tr, br, bl = default, default, default, default
+
+      tr = self.data[y][x] or default
+      tl = self.data[y][x + 1] or default
+      if y < height then
+        br = self.data[y + 1][x] or default
+        bl = self.data[y + 1][x + 1] or default
+      end
+
       tileset:draw(
-        tileindex,
-        ((i - 1) % width) * tilewidth,
-        (math.floor((i - 1) / width)) * tileheight
+        tr, tl, bl, br,
+        (x - 1) * tilewidth - tilewidth / 2,
+        (y - 1) * tileheight - tileheight / 2
       )
     end
   end
