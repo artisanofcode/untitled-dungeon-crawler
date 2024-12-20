@@ -3,9 +3,18 @@
 --- @class vector2
 --- @field x number the vectors X component
 --- @field y number the vectors Y component
+---
+--- @operator add(vector2): vector2
+--- @operator sub(vector2): vector2
+--- @operator mul(vector2): vector2
+--- @operator div(vector2): vector2
+--- @operator mul(number): vector2
+--- @operator div(number): vector2
 local M = {}
 
-M.__index = M
+--- Meta-table for vector2 class
+local MT = { __index = M }
+
 
 --- 2D Vector Factory.
 ---
@@ -18,7 +27,7 @@ M.__index = M
 function M.new(x, y)
   local self = { x = x, y = y }
 
-  return setmetatable(self, M)
+  return setmetatable(self, MT)
 end
 
 --- Check type is 2D Vector.
@@ -26,6 +35,7 @@ end
 --- @param value any
 ---
 --- @return boolean
+--- @nodiscard
 function M.isvector2(value)
   return getmetatable(value) == M
 end
@@ -38,7 +48,7 @@ end
 --- @param b vector2
 ---
 --- @return vector2
-function M.__add(a, b)
+function MT.__add(a, b)
   return M.new(a.x + b.x, a.y + b.y)
 end
 
@@ -50,7 +60,7 @@ end
 --- @param b any
 ---
 --- @return vector2
-function M.__sub(a, b)
+function MT.__sub(a, b)
   return M.new(a.x - b.x, a.y - b.y)
 end
 
@@ -62,7 +72,7 @@ end
 --- @param b vector2 | number
 ---
 --- @return vector2
-function M.__mul(a, b)
+function MT.__mul(a, b)
   if type(b) == "number" then
     return M.new(a.x * b, a.y * b)
   end
@@ -82,7 +92,7 @@ end
 --- @param b vector2 | number
 ---
 --- @return vector2
-function M.__div(a, b)
+function MT.__div(a, b)
   if type(b) == "number" then
     return M.new(a.x / b, a.y / b)
   end
@@ -102,7 +112,7 @@ end
 --- @param b vector2 | number
 ---
 --- @return boolean
-function M.__eq(a, b)
+function MT.__eq(a, b)
   return a.x == b.x and a.y == b.y
 end
 
@@ -113,6 +123,7 @@ end
 --- @param self vector2
 ---
 --- @return vector2
+--- @nodiscard
 function M.normalized(self)
   -- normalize the length of a vector to 1
   local copy = M.new(self.x, self.y)
@@ -146,6 +157,7 @@ end
 --- @param self vector2
 ---
 --- @return number x, number y the vectors X and Y components
+--- @nodiscard
 function M.unpack(self)
   return self.x, self.y
 end

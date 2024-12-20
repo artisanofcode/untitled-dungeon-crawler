@@ -81,7 +81,10 @@ end
 --- Draw Tile.
 ---
 --- @param self tileset tileset to draw
---- @param index integer tile index
+--- @param tl integer top left tile type
+--- @param tr integer top right tile type
+--- @param br integer bottom right tile type
+--- @param bl integer bottom left tile type
 --- @param x number pixel X coordinate
 --- @param y number pixel Y coordinate
 function M.draw(self, tl, tr, br, bl, x, y)
