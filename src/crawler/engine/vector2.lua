@@ -20,12 +20,12 @@ local MT = { __index = M }
 ---
 --- Construct a new vector2 instance.
 ---
---- @param x number the vectors X component
---- @param y number the vectors Y component
+--- @param x? number the vectors X component
+--- @param y? number the vectors Y component
 ---
 --- @return vector2 v a vector instance
 function M.new(x, y)
-  local self = { x = x, y = y }
+  local self = { x = x or 0, y = y or 0 }
 
   return setmetatable(self, MT)
 end
@@ -37,7 +37,7 @@ end
 --- @return boolean
 --- @nodiscard
 function M.isvector2(value)
-  return getmetatable(value) == M
+  return getmetatable(value) == MT
 end
 
 --- Add Vectors.
@@ -77,7 +77,10 @@ function MT.__mul(a, b)
     return M.new(a.x * b, a.y * b)
   end
 
-  if M.isvector2(b) then
+  if type(a) == "number" then
+    return M.new(b.x * a, b.y * a)
+  end
+  if M.isvector2(a) and M.isvector2(b) then
     return M.new(a.x * b.x, a.y * b.y)
   end
 
@@ -88,7 +91,7 @@ end
 ---
 --- This is the same as `new(a.x / b.x, a.y / b.y)` or `new(a.x / b, a.y / b)`.
 ---
---- @param a vector2
+--- @param a vector2 | number
 --- @param b vector2 | number
 ---
 --- @return vector2
@@ -96,8 +99,11 @@ function MT.__div(a, b)
   if type(b) == "number" then
     return M.new(a.x / b, a.y / b)
   end
+  if type(a) == "number" then
+    return M.new(b.x / a, b.y / a)
+  end
 
-  if M.isvector2(b) then
+  if M.isvector2(a) and M.isvector2(b) then
     return M.new(a.x / b.x, a.y / b.y)
   end
 
@@ -144,12 +150,21 @@ function M.normalize(self)
     return self
   end
 
-  local length = math.sqrt(self.x ^ 2 + self.y ^ 2)
+  local length = self:length()
 
   self.x = self.x / length
   self.y = self.y / length
 
   return self
+end
+
+--- Size of the vector
+---
+--- @param self vector2
+---
+--- @return number
+function M.length(self)
+  return math.sqrt(self.x ^ 2 + self.y ^ 2)
 end
 
 --- Unpack Components

@@ -7,7 +7,15 @@ love.filesystem.setRequirePath(
   love.filesystem.getRequirePath()
 )
 
-function love.load()
+function love.load(args)
+  for _, arg in ipairs(args) do
+    if arg == "--test" then
+      local runner = require("tests.runtime").new()
+      runner:run("tests")
+      os.exit(0)
+    end
+  end
+
   GAME = require("crawler")
   GAME.load()
 end
