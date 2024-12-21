@@ -93,20 +93,35 @@ function M.test_length_returns_vector_length()
 end
 
 function M.test_normalize_returns_vector_length_of_1()
-  local x, y = math.random(100), math.random(100)
-  local v = vector2.new(x, y)
+  local v = vector2.new(3, 4)
+
   v:normalize()
-  assert(math.abs(v:length() - 1) < 0.000001)
+
+  assert(math.abs(v:length() - 1) < 0.000001, "invalid length")
+  assert(math.abs(v.x - (3 / 5)) < 0.000001, "invalid x component")
+  assert(math.abs(v.y - (4 / 5)) < 0.000001, "invalid x component")
 end
 
 function M.test_normalize_returns_self()
-  local x, y = math.random(100), math.random(100)
-  local v1 = vector2.new(x, y)
-  local v2 = v1:normalize()
+  local v = vector2.new(math.random(100), math.random(100))
 
-  v2.x = 2
+  assert(v == v:normalize())
+end
 
-  assert(v1.x == 2)
+function M.test_normalized_returns_vector_length_of_1()
+  local v = vector2.new(3, 4)
+
+  local v2 = v:normalized()
+
+  assert(math.abs(v2:length() - 1) < 0.000001, "invalid length")
+  assert(math.abs(v2.x - (3 / 5)) < 0.000001, "invalid x component")
+  assert(math.abs(v2.y - (4 / 5)) < 0.000001, "invalid x component")
+end
+
+function M.test_normalized_returns_new_vector()
+  local v = vector2.new(math.random(100), math.random(100))
+
+  assert(v ~= v:normalized())
 end
 
 function M.test_unpack_returns_x_and_y_component()
