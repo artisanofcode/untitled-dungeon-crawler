@@ -158,13 +158,39 @@ function M.normalize(self)
   return self
 end
 
---- Size of the vector
+--- Vector Angle
+---
+--- Returns the vectors angle from the positive X axis in radians.
+---
+--- @param self vector2
+---
+--- @return number
+function M.angle(self)
+  return math.atan2(self.y, self.x)
+end
+
+--- Vector Length.
+---
+--- Returns the length (magnitude) of the vector.
 ---
 --- @param self vector2
 ---
 --- @return number
 function M.length(self)
-  return math.sqrt(self.x ^ 2 + self.y ^ 2)
+  return math.sqrt(self:lengthsquared())
+end
+
+--- Vector Length Squared.
+---
+--- Returns the squared length (squared magnitude) of the vector.
+---
+--- This is faster than length things like for comparison.
+---
+--- @param self vector2
+---
+--- @return number
+function M.lengthsquared(self)
+  return self.x ^ 2 + self.y ^ 2
 end
 
 --- Unpack Components

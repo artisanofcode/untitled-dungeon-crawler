@@ -82,7 +82,15 @@ function M.test_it_can_divide_vector2_with_number()
   assert(3 / v == expected, "invalid result")
 end
 
-function M.test_length_returns_vector_length()
+function M.test_angle_returns_vectors_angle_in_radians()
+  assert(vector2.new(1, 0):angle() == 0)
+  assert(vector2.new(0, 1):angle() == math.pi / 2)
+  assert(vector2.new(-1, 0):angle() == math.pi)
+  assert(vector2.new(0, -1):angle() == -math.pi / 2)
+  assert(vector2.new(1, -1):angle() == -math.pi / 4)
+end
+
+function M.test_length_returns_vector_magnitude()
   assert(vector2.new(1, 0):length() == 1)
   assert(vector2.new(0, 1):length() == 1)
   assert(vector2.new(10, 0):length() == 10)
@@ -90,6 +98,16 @@ function M.test_length_returns_vector_length()
   assert(vector2.new(3, 4):length() == 5)
   assert(vector2.new(8, 6):length() == 10)
   assert(vector2.new(8, 6):length() == 10)
+end
+
+function M.test_lengthsquared_returns_vectors_magnitude_squared()
+  assert(vector2.new(1, 0):lengthsquared() == 1)
+  assert(vector2.new(0, 1):lengthsquared() == 1)
+  assert(vector2.new(10, 0):lengthsquared() == 100)
+  assert(vector2.new(0, 10):lengthsquared() == 100)
+  assert(vector2.new(3, 4):lengthsquared() == 25)
+  assert(vector2.new(8, 6):lengthsquared() == 100)
+  assert(vector2.new(8, 6):lengthsquared() == 100)
 end
 
 function M.test_normalize_returns_vector_length_of_1()
