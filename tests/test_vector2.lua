@@ -82,6 +82,13 @@ function M.test_it_can_divide_vector2_with_number()
   assert(3 / v == expected, "invalid result")
 end
 
+function M.test_it_can_convert_to_string()
+  local x, y = math.random(100), math.random(100)
+  local v = vector2.new(x, y)
+
+  assert(tostring(v) == "(" .. x .. ", " .. y .. ")", "invalid string representation")
+end
+
 function M.test_angle_returns_vectors_angle_in_radians()
   assert(vector2.new(1, 0):angle() == 0)
   assert(vector2.new(0, 1):angle() == math.pi / 2)

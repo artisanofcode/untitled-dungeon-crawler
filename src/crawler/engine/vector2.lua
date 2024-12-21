@@ -122,6 +122,15 @@ function MT.__eq(a, b)
   return a.x == b.x and a.y == b.y
 end
 
+--- Convert to String
+---
+--- @param self vector2
+---
+--- @return string str
+function MT.__tostring(self)
+  return "(" .. self.x .. ", " .. self.y .. ")"
+end
+
 --- Normalized Vector.
 ---
 --- Normalize the vector to a length of 1 while preserving the angle..
