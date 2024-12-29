@@ -15,7 +15,7 @@ end
 function Function:collect() end
 
 function Function:run(writer)
-  success, result = pcall(self.func)
+  local success, result = pcall(self.func)
 
   if success then
     result = nil

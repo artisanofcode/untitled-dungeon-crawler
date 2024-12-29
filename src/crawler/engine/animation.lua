@@ -1,67 +1,40 @@
+--- @module "crawler.engine.textureatlas"
+
 local vector2 = require("crawler.engine.vector2")
 
 --- Animation
 ---
 --- @class animation
---- @field texture love.Texture
+--- @field atlas textureatlas
 --- @field frame integer
 --- @field time number
---- @field quads love.Quad[]
 --- @field frames { index: integer, duration: number }[]
 local M = {}
 
-M.__index = M
+local MT = { __index = M }
 
 --- Animation Factory
 ---
---- @param texture love.Texture
+--- @param atlas textureatlas
 --- @param frames { index: integer, duration: number }[]
---- @param framesize? vector2
---- @param margin? vector2
---- @param spacing? vector2
-function M.new(texture, frames, framesize, margin, spacing)
-  local quads = {}
-  local imagewidth, imageheight = texture:getDimensions()
-
-  framesize = framesize or vector2.new(32, 32)
-  margin = margin or vector2.new(0, 0)
-  spacing = spacing or vector2.new(0, 0)
-
-  local columns = math.floor(
-    (imagewidth - margin.x + spacing.x) / (framesize.x + spacing.x)
-  )
-  local rows = math.floor(
-    (imageheight - margin.y + spacing.y) / (framesize.y + spacing.y)
-  )
-
+function M.new(atlas, frames)
   local self = {
-    texture = texture,
-    framesize = framesize,
-    margin = margin,
-    spacing = spacing,
+    atlas = atlas,
     frame = 1,
     time = 0,
-    quads = quads,
     frames = frames
   }
 
-  for column = 0, columns - 1, 1 do
-    for row = 0, rows - 1, 1 do
-      table.insert(
-        quads,
-        love.graphics.newQuad(
-          column * (framesize.x + spacing.x) + margin.x,
-          row * (framesize.y + spacing.y) + margin.y,
-          framesize.x,
-          framesize.y,
-          imagewidth,
-          imageheight
-        )
-      )
-    end
-  end
+  return setmetatable(self, MT)
+end
 
-  return setmetatable(self, M)
+--- Check Type is Animation
+---
+--- @param value any
+---
+--- @return boolean
+function M.isanimation(value)
+  return getmetatable(value) == MT
 end
 
 --- Update Animation
@@ -88,9 +61,7 @@ end
 --- @param x number
 --- @param y number
 function M.draw(self, x, y)
-  local frame = self.frames[self.frame]
-
-  love.graphics.draw(self.texture, self.quads[frame.index], x, y)
+  self.atlas:draw(self.frames[self.frame].index, x, y)
 end
 
 return M

@@ -3,130 +3,116 @@ local M = {}
 local vector2 = require("crawler.engine.vector2")
 local tileset = require("crawler.engine.tileset")
 local tilemap = require("crawler.engine.tilemap")
-local animation = require("crawler.engine.animation")
+local tilelayer = require("crawler.engine.tilelayer")
+local textureatlas = require("crawler.engine.textureatlas")
+local messagebus = require("crawler.engine.messagebus")
+local object = require("crawler.object")
 
 local objects = {}
 
-local function sprite_move(sprite, dt)
-  sprite.position = sprite.position + (sprite.velocity * dt)
-end
-
 function M.load()
-  local sprite_image = love.graphics.newImage("data/assets/images/slime.png")
-
-  local slime = {
-    animation = animation.new(
-      sprite_image,
-      {
-        { index = 1, duration = 0.3 },
-        { index = 2, duration = 0.4 },
-        { index = 1, duration = 0.2 },
-        { index = 2, duration = 0.1 },
-      }
-    ),
-    position = vector2.new(400, 300),
-    velocity = vector2.new(0, 0),
-    speed = 100,
-    update = function(self, dt)
-      self.animation:update(dt)
-
-      local velocity = vector2.new(0, 0)
-
-      if love.keyboard.isDown("w") then
-        velocity.y = velocity.y - 1
-      end
-
-      if love.keyboard.isDown("a") then
-        velocity.x = velocity.x - 1
-      end
-
-      if love.keyboard.isDown("s") then
-        velocity.y = velocity.y + 1
-      end
-
-      if love.keyboard.isDown("d") then
-        velocity.x = velocity.x + 1
-      end
-
-      self.velocity = velocity:normalize() * self.speed
-
-      sprite_move(self, dt)
-    end,
-    draw = function(self)
-      self.animation:draw(self.position.x, self.position.y)
-    end,
-  }
-  table.insert(objects, 1, slime)
-
-  local slime2 = {
-    animation = animation.new(
-      sprite_image,
-      {
-        { index = 1, duration = 0.3 },
-        { index = 2, duration = 0.4 },
-        { index = 1, duration = 0.2 },
-        { index = 2, duration = 0.1 },
-      }
-    ),
-    position = vector2.new(200, 400),
-    velocity = vector2.new(50, 50),
-    update = function(self, dt)
-      self.animation:update(dt)
-
-      sprite_move(self, dt)
-    end,
-    draw = function(self)
-      self.animation:draw(self.position.x, self.position.y)
-    end,
-  }
-  table.insert(objects, 1, slime2)
-
-  local tiles = tileset.new(
-    love.graphics.newImage("data/assets/images/tiles.png"),
-    vector2.new(32, 32),
-    vector2.new(0, 0),
-    vector2.new(0, 0),
-    {
-      ["1:1:1:2"] = 1,
-      ["1:2:2:1"] = 2,
-      ["2:1:2:2"] = 3,
-      ["1:1:2:2"] = 4,
-      ["2:1:2:1"] = 5,
-      ["1:2:2:2"] = 6,
-      ["2:2:2:2"] = 7,
-      ["2:2:1:2"] = 8,
-      ["1:2:1:1"] = 9,
-      ["2:2:1:1"] = 10,
-      ["2:2:2:1"] = 11,
-      ["2:1:1:2"] = 12,
-      ["1:1:1:1"] = 13,
-      ["1:1:2:1"] = 14,
-      ["1:2:1:2"] = 15,
-      ["2:1:1:1"] = 16,
-    }
+  local sprite_atlas = textureatlas.new(
+    love.graphics.newImage("data/assets/images/slime.png"),
+    vector2.new(32, 32)
   )
 
-  local map = tilemap.new(
-    {
-      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-      2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
-      2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
-      2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2,
-      2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2,
-      2, 2, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2,
-      2, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2,
-      2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
-      2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
-      2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
-      2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
-      2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2,
-      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2,
-    },
-    vector2.new(16, 15),
-    tiles
-  )
+  local bus = messagebus.new()
+  bus:register(object.player.new("Player", sprite_atlas, 400, 300))
+  bus:register(object.slime.new("Slime", sprite_atlas, 200, 400))
+
+  bus:on("update", { "position", "velocity" }, function(obj, dt)
+    obj.position = obj.position + (obj.velocity * dt)
+  end)
+
+  bus:on("update", { "animation" }, function(obj, dt)
+    obj.animation:update(dt)
+  end)
+
+  bus:on("update", { "velocity", "speed", "input" }, function(obj, dt)
+    local velocity = vector2.new(0, 0)
+
+    if love.keyboard.isDown("w") then
+      velocity.y = velocity.y - 1
+    end
+
+    if love.keyboard.isDown("a") then
+      velocity.x = velocity.x - 1
+    end
+
+    if love.keyboard.isDown("s") then
+      velocity.y = velocity.y + 1
+    end
+
+    if love.keyboard.isDown("d") then
+      velocity.x = velocity.x + 1
+    end
+
+    obj.velocity = velocity:normalize() * obj.speed
+  end)
+
+  bus:on("draw", { "animation", "position" }, function(obj, _)
+    obj.animation:draw(obj.position.x, obj.position.y)
+  end)
+
+  table.insert(objects, bus)
+
+  -- local tiles = tileset.load("data/tilesets/tiles.lua")
+
+  -- local tiles = tileset.new(
+  --   tile_atlas,
+  --   {
+  --     ["1:1:1:2"] = 1,
+  --     ["1:2:2:1"] = 2,
+  --     ["2:1:2:2"] = 3,
+  --     ["1:1:2:2"] = 4,
+  --     ["2:1:2:1"] = 9,
+  --     ["1:2:2:2"] = 10,
+  --     ["2:2:2:2"] = 11,
+  --     ["2:2:1:2"] = 12,
+  --     ["1:2:1:1"] = 17,
+  --     ["2:2:1:1"] = 18,
+  --     ["2:2:2:1"] = 19,
+  --     ["2:1:1:2"] = 20,
+  --     ["1:1:1:1"] = 25,
+  --     ["1:1:2:1"] = 26,
+  --     ["1:2:1:2"] = 27,
+  --     ["2:1:1:1"] = 28,
+  --   }
+  -- )
+
+  -- local data, mapsize = tiles:fromterrain(
+  --   {
+  --     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  --     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  --     2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
+  --     2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
+  --     2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2,
+  --     2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2,
+  --     2, 2, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2,
+  --     2, 2, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 2,
+  --     2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
+  --     2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
+  --     2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
+  --     2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2,
+  --     2, 2, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2,
+  --     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  --     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2,
+  --   },
+  --   16,
+  --   15
+  -- -- )
+
+  -- local layer = tilelayer.new(
+  --   data,
+  --   mapsize,
+  --   vector2.new(32, 32),
+  --   tiles
+  -- )
+
+  -- local map = tilemap.new(mapsize, { layer })
+
+  local map = tilemap.load("data/maps/village.lua")
+
   table.insert(objects, 1, map)
 end
 

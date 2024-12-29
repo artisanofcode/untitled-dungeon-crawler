@@ -1,30 +1,68 @@
+local vector2 = require("crawler.engine.vector2")
+local tileset = require("crawler.engine.tileset")
+local tilelayer = require("crawler.engine.tilelayer")
+
 --- Tile Map
 ---
 --- @class tilemap
---- @field data number[]
 --- @field mapsize vector2
---- @field tilesize vector2
---- @field tileset tileset
+--- @field layers tilelayer[]
 local M = {}
 
 M.__index = M
 
 --- Tile Map Factory
 ---
---- @param data integer[] map data
 --- @param mapsize vector2 maps total dimensions
---- @param tileset tileset tileset to use when rendering map
+--- @param layers tilelayer[] map layers
 ---
 --- @return tilemap
-function M.new(data, mapsize, tileset)
+function M.new(mapsize, layers)
   local self = {
-    data = data,
     mapsize = mapsize,
-    tilesize = tileset.tilesize,
-    tileset = tileset,
+    layers = layers,
   }
 
   return setmetatable(self, M)
+end
+
+--- Load Tile Map
+--- @param filename string
+---
+--- @return tilemap
+function M.load(filename)
+  local chunk = love.filesystem.load(filename)
+  local data = chunk()
+
+  local pathname = filename:match("(.+)/") or ""
+  local tilesetfile = data.tilesets[1].exportfilename
+
+  while tilesetfile:sub(1, 3) == "../" do
+    pathname = pathname:match("(.+)/")
+    tilesetfile = tilesetfile:sub(4)
+  end
+
+  local tiles = tileset.load(pathname .. "/" .. tilesetfile)
+
+  local layers = {}
+
+  local tilesize = vector2.new(data.tilewidth, data.tileheight)
+  for _, item in ipairs(data.layers) do
+    if item.type == "tilelayer" then
+      local data = {}
+
+      local layer = tilelayer.new(
+        item.data,
+        vector2.new(item.width, item.height),
+        tilesize,
+        tiles
+      )
+
+      table.insert(layers, layer)
+    end
+  end
+
+  return M.new(vector2.new(data.width, data.height), layers)
 end
 
 ---Check Type is Tile Map
@@ -36,26 +74,12 @@ function M.istilemap(value)
   return getmetatable(value) == M
 end
 
+--- Draw Tile Map
+---
+--- @param self tilemap
 function M.draw(self)
-  local width, height = self.mapsize:unpack()
-  local tilewidth, tileheight = self.tilesize:unpack()
-  local tileset, data = self.tileset, self.data
-  local offsetwidth, offsetheight = tilewidth / 2, tileheight / 2
-
-  for x = 0, width - 1 do
-    for y = 0, height - 1 do
-      local y2 = math.min(y + 1, height - 1)
-      local x2 = math.min(x + 1, width - 1)
-
-      tileset:draw(
-        data[y * width + x + 1],
-        data[y * width + x2 + 1],
-        data[y2 * width + x2 + 1],
-        data[y2 * width + x + 1],
-        x * tilewidth - offsetwidth,
-        y * tileheight - offsetheight
-      )
-    end
+  for _, layer in ipairs(self.layers) do
+    layer:draw()
   end
 end
 
