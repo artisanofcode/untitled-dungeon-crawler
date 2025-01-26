@@ -11,6 +11,7 @@ local vector2 = require("crawler.engine.vector2")
 --- @field frames { index: integer, duration: number }[]
 local M = {}
 
+--- Meta-table for animation class
 local MT = { __index = M }
 
 --- Animation Factory

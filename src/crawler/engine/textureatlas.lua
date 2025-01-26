@@ -9,6 +9,8 @@ local vector2 = require("crawler.engine.vector2")
 --- @field private spacing vector2
 --- @field private quads love.Quad[]
 local M = {}
+
+--- Meta-table for textureatlas class
 local MT = { __index = M }
 
 ---Texture Atlas Factory

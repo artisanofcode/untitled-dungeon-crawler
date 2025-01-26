@@ -1,5 +1,6 @@
 local vector2 = require("crawler.engine.vector2")
 local textureatlas = require("crawler.engine.textureatlas")
+local filepath = require("crawler.engine.filepath")
 
 --- Tile Set.
 ---
@@ -8,6 +9,7 @@ local textureatlas = require("crawler.engine.textureatlas")
 --- @field terrains table<string, integer>
 local M = {}
 
+--- Meta-table for tileset class
 local MT = { __index = M }
 
 --- Tile Set Factory.
@@ -34,18 +36,12 @@ function M.load(filename)
   local chunk = love.filesystem.load(filename)
   local data = chunk()
 
-  local pathname = filename:match("(.+)/") or ""
-  local imagefile = data.image
-
-  while imagefile:sub(1, 3) == "../" do
-    pathname = pathname:match("(.+)/")
-    imagefile = imagefile:sub(4)
-  end
-
   local atlas = textureatlas.new(
-    love.graphics.newImage(pathname .. "/" .. imagefile),
+    love.graphics.newImage(
+      filepath.resolve(filepath.join(filepath.parent(filename), data.image))
+    ),
     vector2.new(data.tilewidth, data.tileheight),
-    vector2.new(data.marin, data.margin),
+    vector2.new(data.margin, data.margin),
     vector2.new(data.spacing, data.spacing)
   )
 
@@ -81,6 +77,7 @@ function M.draw(self, index, x, y)
 end
 
 --- Load Terrain
+---
 --- @param terrain integer[]
 --- @param width integer
 --- @param height integer
