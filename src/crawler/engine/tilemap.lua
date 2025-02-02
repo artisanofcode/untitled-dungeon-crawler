@@ -7,6 +7,7 @@ local tilelayer = require("crawler.engine.tilelayer")
 ---
 --- @class tilemap
 --- @field mapsize vector2
+--- @field tilesize vector2
 --- @field layers tilelayer[]
 local M = {}
 
@@ -16,12 +17,14 @@ local MT = { __index = M }
 --- Tile Map Factory
 ---
 --- @param mapsize vector2 maps total dimensions
+--- @param tilesize vector2 tile dimensions
 --- @param layers tilelayer[] map layers
 ---
 --- @return tilemap
-function M.new(mapsize, layers)
+function M.new(mapsize, tilesize, layers)
   local self = {
     mapsize = mapsize,
+    tilesize = tilesize,
     layers = layers,
   }
 
@@ -60,7 +63,7 @@ function M.load(filename)
     end
   end
 
-  return M.new(vector2.new(data.width, data.height), layers)
+  return M.new(vector2.new(data.width, data.height), tilesize, layers)
 end
 
 --- Check Type is Tile Map

@@ -10,6 +10,7 @@
 --- @operator div(vector2): vector2
 --- @operator mul(number): vector2
 --- @operator div(number): vector2
+--- @operator unm: vector2
 local M = {}
 
 --- Meta-table for vector2 class
@@ -108,6 +109,14 @@ function MT.__div(a, b)
   end
 
   error("vector2 can only be divided by number or vector2")
+end
+
+--- Negate Vector
+---
+--- @param a vector2
+--- @return vector2
+function MT.__unm(a)
+  return M.new(-a.x, -a.y)
 end
 
 --- Compare Vectors Equality.
