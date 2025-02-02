@@ -1,8 +1,8 @@
 local M = {}
 
-M.animatable = require("crawler.traits.animatable")
-M.controllable = require("crawler.traits.controllable")
-M.drawable = require("crawler.traits.drawable")
-M.moveable = require("crawler.traits.moveable")
+M.animatable = require("crawler.trait.animatable")
+M.controllable = require("crawler.trait.controllable")
+M.drawable = require("crawler.trait.drawable")
+M.moveable = require("crawler.trait.moveable")
 
 return M

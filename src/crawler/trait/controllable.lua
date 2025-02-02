@@ -1,5 +1,5 @@
-local trait = require("src.crawler.traits.trait")
-local moveable = require("crawler.traits.moveable")
+local trait = require("src.crawler.trait.trait")
+local moveable = require("crawler.trait.moveable")
 
 local engine = require("crawler.engine")
 

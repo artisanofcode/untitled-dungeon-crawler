@@ -1,6 +1,6 @@
 --- @module "crawler.engine"
 
-local trait = require("src.crawler.traits.trait")
+local trait = require("src.crawler.trait.trait")
 
 --- @class moveable
 --- @field position vector2

@@ -1,7 +1,7 @@
 --- @module "crawler.engine"
 
-local trait = require("src.crawler.traits.trait")
-local drawable = require("crawler.traits.drawable")
+local trait = require("src.crawler.trait.trait")
+local drawable = require("crawler.trait.drawable")
 
 --- @class animatable: drawable
 ---
