@@ -25,6 +25,8 @@ function M.new(texture, assetsize, margin, spacing)
   local quads = {}
   local imagewidth, imageheight = texture:getDimensions()
 
+  texture:setFilter("nearest", "nearest")
+
   assetsize = assetsize or vector2.new(32, 32)
   margin = margin or vector2.new(0, 0)
   spacing = spacing or vector2.new(0, 0)
