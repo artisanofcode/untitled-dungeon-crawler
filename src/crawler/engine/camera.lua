@@ -31,29 +31,26 @@ end
 --- @param self camera
 --- @param position vector2
 function M.setposition(self, position)
-  self.position = position
-
-  local screen = self.screen / self.scale
-
-  local x, y = (self.position - (screen / 2)):unpack()
+  local ox, oy = (self.screen / self.scale / 2):unpack()
+  local x, y = position:unpack()
 
   if self.limits.left then
-    x = math.max(self.limits.left, x)
+    x = math.max(self.limits.left + ox, x)
   end
 
   if self.limits.top then
-    y = math.max(self.limits.top, y)
+    y = math.max(self.limits.top + oy, y)
   end
 
   if self.limits.right then
-    x = math.min(self.limits.right - screen.x, x)
+    x = math.min(self.limits.right - ox, x)
   end
 
   if self.limits.bottom then
-    y = math.min(self.limits.bottom - screen.y, y)
+    y = math.min(self.limits.bottom - oy, y)
   end
 
-  self.offset = -vector2.new(x, y)
+  self.position = vector2.new(x, y)
 end
 
 --- Set Camera Bounds Limit
@@ -75,8 +72,9 @@ end
 --- @param self camera
 function M.attach(self)
   love.graphics.push()
-  love.graphics.scale(self.scale, self.scale)
-  love.graphics.translate(self.offset.x, self.offset.y)
+  love.graphics.translate(self.screen.x / 2, self.screen.y / 2)
+  love.graphics.scale(self.scale)
+  love.graphics.translate(-self.position.x, -self.position.y)
 end
 
 --- Detach camera from screen
