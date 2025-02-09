@@ -23,8 +23,7 @@ function M.load()
 
   local size = (map.mapsize - engine.vector2.new(1, 1)) * map.tilesize
 
-  camera = engine.camera.new(2)
-  camera:setlimits(0, 0, size.x, size.y)
+  camera = engine.camera.new(2, engine.rect2.new(0, 0, size.x, size.y))
 end
 
 function M.update(dt)
