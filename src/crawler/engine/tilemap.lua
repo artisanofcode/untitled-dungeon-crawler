@@ -56,6 +56,7 @@ function M.load(filename)
         item.data,
         vector2.new(item.width, item.height),
         tilesize,
+        vector2.new(item.offsetx, item.offsety),
         tiles
       )
 

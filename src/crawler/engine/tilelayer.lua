@@ -4,7 +4,9 @@
 --- @field data number[]
 --- @field layersize vector2
 --- @field tilesize vector2
+--- @field offset vector2
 --- @field tileset tileset
+--- @field private batch love.SpriteBatch
 local M = {}
 
 --- Meta-table for tilelayer class
@@ -15,15 +17,18 @@ local MT = { __index = M }
 --- @param data integer[] map data
 --- @param layersize vector2 maps total dimensions
 --- @param tilesize vector2 tile dimensions
+--- @param offset vector2 layer offset
 --- @param tileset tileset tileset to use when rendering map
 ---
 --- @return tilelayer
-function M.new(data, layersize, tilesize, tileset)
+function M.new(data, layersize, tilesize, offset, tileset)
   local self = {
     data = data,
     layersize = layersize,
     tilesize = tilesize,
+    offset = offset,
     tileset = tileset,
+    batch = tileset:batch(data, layersize.x, layersize.y, "dynamic")
   }
 
   return setmetatable(self, MT)
@@ -33,20 +38,7 @@ end
 ---
 --- @param self tilelayer
 function M.draw(self)
-  local width, height = self.layersize:unpack()
-  local tilewidth, tileheight = self.tilesize:unpack()
-  local tileset, data = self.tileset, self.data
-  local offsetwidth, offsetheight = tilewidth / 2, tileheight / 2
-
-  for x = 0, width - 1 do
-    for y = 0, height - 1 do
-      tileset:draw(
-        data[y * width + x + 1],
-        x * tilewidth - offsetwidth,
-        y * tileheight - offsetheight
-      )
-    end
-  end
+  love.graphics.draw(self.batch, self.offset.x, self.offset.y)
 end
 
 return M

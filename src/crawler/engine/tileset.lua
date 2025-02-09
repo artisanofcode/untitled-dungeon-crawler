@@ -63,17 +63,32 @@ function M.load(filename)
   return M.new(atlas, terrains)
 end
 
---- Draw Tile.
+--- Create SpriteBatch from Tiles
 ---
---- @param self tileset tileset to draw
---- @param index integer tile index
---- @param x number pixel X coordinate
---- @param y number pixel Y coordinate
-function M.draw(self, index, x, y)
-  if index < 1 then
-    return
+--- Create a SpriteBatch using the given tile data.
+---
+--- @param self tileset
+--- @param data number[]
+--- @param width number
+--- @param height number
+--- @param usage love.SpriteBatchUsage
+--- @return love.SpriteBatch
+function M.batch(self, data, width, height, usage)
+  local batch = self.atlas:batch(width * height, usage)
+  local size = self.atlas.assetsize
+
+  for index, tile in ipairs(data) do
+    if tile > 0 then
+      self.atlas:batchadd(
+        batch,
+        tile,
+        ((index - 1) % width) * size.x,
+        math.floor((index - 1) / width) * size.y
+      )
+    end
   end
-  self.atlas:draw(index, x, y)
+
+  return batch
 end
 
 --- Load Terrain

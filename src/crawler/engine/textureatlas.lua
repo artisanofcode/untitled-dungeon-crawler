@@ -4,7 +4,7 @@ local vector2 = require("crawler.engine.vector2")
 ---
 --- @class textureatlas
 --- @field private texture love.Texture\
---- @field private assetsize vector2
+--- @field assetsize vector2
 --- @field private margin vector2
 --- @field private spacing vector2
 --- @field private quads love.Quad[]
@@ -74,6 +74,31 @@ end
 ---@param y number
 function M.draw(self, index, x, y)
   love.graphics.draw(self.texture, self.quads[index], x, y)
+end
+
+--- Create SpriteBatch
+---
+--- Creates a SpriteBatch using the given textureatlas.
+---
+--- @param self textureatlas
+--- @param maxsprites? number
+--- @param usage? love.SpriteBatchUsage
+--- @return love.SpriteBatch
+function M.batch(self, maxsprites, usage)
+  return love.graphics.newSpriteBatch(self.texture, maxsprites, usage)
+end
+
+--- Add to SpriteBatch
+---
+--- Add a specific asset from the textureatlas to the sprite sheet at given position.
+---
+--- @param self textureatlas
+--- @param batch love.SpriteBatch
+--- @param index number
+--- @param x number
+--- @param y number
+function M.batchadd(self, batch, index, x, y)
+  batch:add(self.quads[index], x, y)
 end
 
 return M
