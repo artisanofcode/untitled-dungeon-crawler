@@ -24,7 +24,8 @@ function M.apply(object, drawable, position)
 end
 
 function M.draw(self)
-  self.drawable:draw(self.position.x, self.position.y)
+  local position = self.position:rounded()
+  self.drawable:draw(position.x, position.y)
 end
 
 return M
