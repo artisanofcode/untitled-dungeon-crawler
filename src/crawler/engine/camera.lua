@@ -29,6 +29,7 @@ local MT = { __index = M }
 --- to calculate the minimum and maximum position according to limits.
 ---
 --- @param self camera
+--- @private
 function M.setlimitminmax(self)
   -- use dot notation instead of colon here in-case metatable has not been set.
   M.reconfigure(self)
@@ -77,6 +78,21 @@ function M.reconfigure(self)
   self.dirty = false
 end
 
+--- Size For
+---
+--- Calculate ratio and viewport based on desired resolution
+---
+--- @param width number
+--- @param height number
+--- @return integer ratio, rect2 viewport
+function M.sizefor(width, height)
+  local sw, sh = love.graphics.getDimensions()
+  local ratio = math.floor(math.min(sw / width, sh / height))
+  local vw, vh = width * ratio, height * ratio
+
+  return ratio, rect2.new(math.floor((sw - vw) / 2), math.floor((sh - vh) / 2), vw, vh)
+end
+
 --- Camera Factory
 ---
 --- @param position? vector2
@@ -85,7 +101,7 @@ end
 --- @param limits? rect2
 --- @param viewport? rect2
 --- @return camera
-function M.new(position, angle, scale, limits, viewport)
+function M.new(position, angle, scale, limits, viewport, target)
   local self = {
     scale = scale or 1,
     position = position or vector2.new(0, 0),

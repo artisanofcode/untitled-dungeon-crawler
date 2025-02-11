@@ -23,11 +23,14 @@ function M.load()
 
   local size = (map.mapsize - engine.vector2.new(1, 1)) * map.tilesize
 
+  local ratio, viewport = engine.camera.sizefor(320, 180)
+
   camera = engine.camera.new(
     engine.vector2.new(400, 300),
     nil,
-    4,
-    engine.rect2.new(0, 0, size.x, size.y)
+    ratio,
+    engine.rect2.new(0, 0, size.x, size.y),
+    viewport
   )
 end
 
