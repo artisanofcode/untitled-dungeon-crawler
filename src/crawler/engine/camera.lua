@@ -18,6 +18,7 @@ local INVERSE_FOCUS = vector2.new(1, 1) - FOCUS
 --- @field private dirty boolean
 --- @field private limitmin vector2
 --- @field private limitmax vector2
+--- @field private scissor? [number, number, number, number]
 local M = {}
 
 local MT = { __index = M }
@@ -115,6 +116,7 @@ function M.new(position, angle, scale, limits, viewport, target)
     ),
     transform = love.math.newTransform(),
     dirty = true,
+    scissor = {},
   }
 
   M.setlimitminmax(self)
@@ -164,6 +166,9 @@ function M.attach(self)
     self:reconfigure()
   end
 
+  self.scissor = { love.graphics.getScissor() }
+
+  love.graphics.setScissor(self.viewport:unpack())
   love.graphics.push()
   love.graphics.replaceTransform(self.transform)
 end
@@ -173,6 +178,8 @@ end
 --- @param self camera
 function M.detach(self)
   love.graphics.pop()
+
+  love.graphics.setScissor(unpack(self.scissor))
 end
 
 --- Convert to World Coordinate System

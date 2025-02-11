@@ -50,6 +50,17 @@ function M.edges(self)
   return l, t, r, b
 end
 
+--- Unpack Components
+---
+--- @param self rect2
+--- @return number x, number y, number width, number height
+function M.unpack(self)
+  local x, y = self.position:unpack()
+  local w, h = self.size:unpack()
+
+  return x, y, w, h
+end
+
 function MT.__eq(a, b)
   return a.position == b.position and a.size == b.size
 end
