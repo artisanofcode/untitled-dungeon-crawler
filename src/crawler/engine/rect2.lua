@@ -11,10 +11,10 @@ local MT = { __index = M }
 
 --- Rectangle Factory
 ---
---- @param x any
---- @param y any
---- @param width any
---- @param height any
+--- @param x number
+--- @param y number
+--- @param width number
+--- @param height number
 --- @return rect2
 function M.new(x, y, width, height)
   local self = {
@@ -31,8 +31,27 @@ end
 ---
 --- @param self rect2
 --- @return vector2
+--- @nodiscard
 function M.extent(self)
   return self.position + self.size
+end
+
+--- Edges
+---
+--- Get the edges of the rectangle.
+---
+--- @param self rect2
+--- @return number left, number top, number right, number bottom
+--- @nodiscard
+function M.edges(self)
+  local l, t = self.position:unpack()
+  local r, b = self:extent():unpack()
+
+  return l, t, r, b
+end
+
+function MT.__eq(a, b)
+  return a.position == b.position and a.size == b.size
 end
 
 return M

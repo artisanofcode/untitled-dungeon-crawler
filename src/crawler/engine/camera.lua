@@ -1,28 +1,109 @@
 local vector2 = require("crawler.engine.vector2")
 local rect2 = require("crawler.engine.rect2")
 
+-- the offset from 0 for the edges of the default limit rectangle
+local DEFAULT_LIMIT = 1000000000
+-- the fraction of the viewports width/height from position to focus the camera
+local FOCUS = vector2.new(0.5, 0.5)
+-- same as focus but from the perspective of the viewports extent
+local INVERSE_FOCUS = vector2.new(1, 1) - FOCUS
+
 --- @class camera
---- @field position vector2
---- @field scale number
---- @field screen vector2
---- @field offset vector2
---- @field limits rect2
+--- @field private position vector2
+--- @field private angle number
+--- @field private scale number
+--- @field private limits rect2
+--- @field private viewport rect2
+--- @field private transform love.Transform
+--- @field private dirty boolean
+--- @field private limitmin vector2
+--- @field private limitmax vector2
 local M = {}
 
 local MT = { __index = M }
 
+
+--- Set Limit Min/Max
+---
+--- Find the bounding box of the viewport in the worlds coordinate system, then use it
+--- to calculate the minimum and maximum position according to limits.
+---
+--- @param self camera
+function M.setlimitminmax(self)
+  -- use dot notation instead of colon here in-case metatable has not been set.
+  M.reconfigure(self)
+
+  local l, t, r, b = self.viewport:edges()
+
+  local x1, y1 = self.transform:inverseTransformPoint(l, t)
+  local x2, y2 = self.transform:inverseTransformPoint(r, t)
+  local x3, y3 = self.transform:inverseTransformPoint(r, b)
+  local x4, y4 = self.transform:inverseTransformPoint(l, b)
+
+  local px = math.min(math.min(x1, x2), math.min(x3, x4))
+  local py = math.min(math.min(y1, y2), math.min(y3, y4))
+
+  local ex = math.max(math.max(x1, x2), math.max(x3, x4))
+  local ey = math.max(math.max(y1, y2), math.max(y3, y4))
+
+  local size = vector2.new(ex, ey) - vector2.new(px, py)
+
+  self.limitmin = self.limits.position + size * FOCUS
+  self.limitmax = self.limits:extent() - size * INVERSE_FOCUS
+end
+
+--- Reconfigure
+---
+--- @param self camera
+--- @private
+function M.reconfigure(self)
+  if not self.dirty then
+    return
+  end
+
+  local offset = (self.viewport.position + self.viewport.size * FOCUS):round()
+  local position = self.position:rounded()
+
+  self.transform:setTransformation(
+    offset.x,
+    offset.y,
+    self.angle,
+    self.scale,
+    self.scale,
+    position.x,
+    position.y
+  )
+
+  self.dirty = false
+end
+
 --- Camera Factory
 ---
---- @param scale number
---- @param limits rect2
+--- @param position? vector2
+--- @param angle? number
+--- @param scale? number
+--- @param limits? rect2
+--- @param viewport? rect2
 --- @return camera
-function M.new(scale, limits)
+function M.new(position, angle, scale, limits, viewport)
   local self = {
-    scale = scale,
-    screen = vector2.new(love.graphics.getDimensions()),
-    position = vector2.new(0, 0),
-    limits = limits
+    scale = scale or 1,
+    position = position or vector2.new(0, 0),
+    angle = angle,
+    viewport = viewport or rect2.new(0, 0, love.graphics.getDimensions()),
+    limits = limits or rect2.new(
+      -DEFAULT_LIMIT,
+      -DEFAULT_LIMIT,
+      DEFAULT_LIMIT * 2,
+      DEFAULT_LIMIT * 2
+    ),
+    transform = love.math.newTransform(),
+    dirty = true,
   }
+
+  M.setlimitminmax(self)
+
+  self.position = self.position:clamped(self.limitmin, self.limitmax)
 
   return setmetatable(self, MT)
 end
@@ -32,14 +113,9 @@ end
 --- @param self camera
 --- @param position vector2
 function M.setposition(self, position)
-  --- get half screen size in game worlds coordinate system
-  local offset = (self.screen / self.scale / 2)
-  -- round position in game world coordinate system to camera coordinate system and
-  -- constrain camera to be within the limits
-  self.position = ((position * self.scale):rounded() / self.scale):clamped(
-    self.limits.position + offset,
-    self.limits:extent() - offset
-  )
+  self.dirty = self.position ~= position or self.dirty
+
+  self.position = position:clamped(self.limitmin, self.limitmax)
 end
 
 --- Set Camera Bounds Limit
@@ -47,24 +123,64 @@ end
 --- @param self camera
 --- @param limits rect2
 function M.setlimits(self, limits)
-  self.limits = limits
+  if self.limits ~= limits then
+    self.limits = limits
+    self:setlimitminmax()
+  end
 end
 
---- Attach camera to screen
+--- Set Camera Viewport
+---
+--- @param self camera
+--- @param viewport rect2
+function M.setviewport(self, viewport)
+  if self.viewport ~= viewport then
+    self.viewport = viewport
+    self:setlimitminmax()
+  end
+end
+
+--- Attach camera to viewport
 ---
 --- @param self camera
 function M.attach(self)
+  if self.dirty then
+    self:reconfigure()
+  end
+
   love.graphics.push()
-  love.graphics.translate(self.screen.x / 2, self.screen.y / 2)
-  love.graphics.scale(self.scale)
-  love.graphics.translate(-self.position.x, -self.position.y)
+  love.graphics.replaceTransform(self.transform)
 end
 
---- Detach camera from screen
+--- Detach camera from viewport
 ---
 --- @param self camera
 function M.detach(self)
   love.graphics.pop()
+end
+
+--- Convert to World Coordinate System
+---
+--- Convert a position vector from the screen coordinate system into the world
+--- coordinate system.
+---
+--- @param self camera
+--- @param coords vector2 screen coordinates
+--- @return vector2 # world coordinates
+function M.toworld(self, coords)
+  return vector2.new(self.transform:inverseTransformPoint(coords.x, coords.y))
+end
+
+--- Convert to Screen Coordinate System
+---
+--- Convert a position vector from the world coordinate system into the screen
+--- coordinate system.
+---
+--- @param self camera
+--- @param coords vector2 world coordinates
+--- @return vector2 # screen coordinates
+function M.toscreen(self, coords)
+  return vector2.new(self.transform:transformPoint(coords.x, coords.y))
 end
 
 return M
