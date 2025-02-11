@@ -61,8 +61,13 @@ end
 --- @param self animation
 --- @param x number
 --- @param y number
-function M.draw(self, x, y)
-  self.atlas:draw(self.frames[self.frame].index, x, y)
+--- @param r? number
+--- @param sx? number
+--- @param sy? number
+--- @param ox? number
+--- @param oy? number
+function M.draw(self, x, y, r, sx, sy, ox, oy)
+  self.atlas:draw(self.frames[self.frame].index, x, y, r, sx, sy, ox, oy)
 end
 
 return M

@@ -72,8 +72,13 @@ end
 ---@param index integer
 ---@param x number
 ---@param y number
-function M.draw(self, index, x, y)
-  love.graphics.draw(self.texture, self.quads[index], x, y)
+---@param r? number
+---@param sx? number
+---@param sy? number
+---@param ox? number
+---@param oy? number
+function M.draw(self, index, x, y, r, sx, sy, ox, oy)
+  love.graphics.draw(self.texture, self.quads[index], x, y, r, sx, sy, ox, oy)
 end
 
 --- Create SpriteBatch
